@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udp
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: udp
+  template:
+    metadata:
+      labels:
+        app: udp
+    spec:
+      containers:
+      - name: udp
+        image: udp:0.0.1
+        ports:
+        - containerPort: 3333
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: udp-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 3333
+    targetPort: 3333
+    protocol: UDP
+    name: test
+    nodePort: 30012
+  selector:
+    app: udp
