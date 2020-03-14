@@ -11,6 +11,7 @@ run:
 
 clean:
 	rm -rf udp.*
+	bash -x cleanup.sh
 
 .PHONY: clean run
 
