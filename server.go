@@ -9,7 +9,12 @@ import (
 )
 
 func main() {
-	server(context.TODO(), "0.0.0.0:3333")
+	podName := os.Getenv("MY_POD_NAME")
+	if podName == "" {
+		panic("MY_POD_NAME environment variable not set")
+	}
+	fmt.Printf("MY_POD_NAME: %s\n", podName)
+	server(context.TODO(), "0.0.0.0:3333", podName)
 }
 
 // maxBufferSize specifies the size of the buffers that
@@ -20,7 +25,7 @@ const maxBufferSize = 1024
 // server wraps all the UDP echo server functionality.
 // ps.: the server is capable of answering to a single
 // client at a time.
-func server(ctx context.Context, address string) (err error) {
+func server(ctx context.Context, address, answer string) (err error) {
 	// TODO: Marker timeout
 	var timeout *time.Duration
 	timeoutVal := 2 * time.Second
@@ -82,10 +87,7 @@ func server(ctx context.Context, address string) (err error) {
 
 			// Write the packet's contents back to the client.
 			// n, err = pc.WriteTo(buffer[:n], addr)
-			// TODO: write environment var `MY_POD_NAME`
-
-			podName := os.Getenv("MY_POD_NAME")
-			n, err = pc.WriteTo([]byte(podName+"\n"), addr)
+			n, err = pc.WriteTo([]byte(answer+"\n"), addr)
 			if err != nil {
 				doneChan <- err
 				return
